@@ -87,8 +87,7 @@ def workspace(args):
     # then switch to it
     if args[1] == 'next' or args[1] == 'prev':
         for _ in workspaces:
-            focused = new_ws
-            new_ws = new_workspace(focused, workspaces, args)
+            new_ws = new_workspace(new_ws, workspaces, args)
             # check the new workspace is in the allowed list
             if workspaces[new_ws]['name'] in allowed_ws:
                 subprocess.run(["i3-msg", "workspace",
