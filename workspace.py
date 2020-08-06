@@ -28,6 +28,7 @@ def new_workspace(focused, workspaces, args):
     '''
         get the index of the workspace we want to switch to
     '''
+    new_ws = None
     if args[1] == 'prev':
         new_ws = focused - 1
         if new_ws < 0:
@@ -77,6 +78,11 @@ def workspace(args):
 
     # get the index of the workspace we want to switch to
     new_ws = new_workspace(focused, workspaces, args)
+
+    if new_ws is None:
+        if args[1] in allowed_ws:
+            subprocess.run(["i3-msg", *args])
+        sys.exit(0)
 
     # check the new workspace is in the allowed list
     if workspaces[new_ws]['name'] in allowed_ws:
