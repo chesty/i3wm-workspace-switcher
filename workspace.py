@@ -45,6 +45,12 @@ def new_workspace(focused, workspaces, args):
     return new_ws
 
 
+def workspace_focus(workspaces):
+    for i, workspace in enumerate(workspaces):
+        if workspace['focused']:
+            return i
+
+
 def workspace(args):
     # if /tmp/wslock doesn't exist or there are any errors reading it
     # allow workspace changes
@@ -70,21 +76,20 @@ def workspace(args):
         sys.exit(0)
 
     # get the index of the workspaces list that has focus
-    focused = 0
-    for i, workspace in enumerate(workspaces):
-        if workspace['focused']:
-            focused = i
-            break
+    focused = workspace_focus(workspaces)
+    if focused is None:
+        sys.exit(0)
 
     # get the index of the workspace we want to switch to
     new_ws = new_workspace(focused, workspaces, args)
 
+    # switch to non existing workspace if it's in the allowed list
     if new_ws is None:
         if args[1] in allowed_ws:
             subprocess.run(["i3-msg", *args])
         sys.exit(0)
 
-    # check the new workspace is in the allowed list
+    # switch to the existing workspace if it's in the allowed list
     if workspaces[new_ws]['name'] in allowed_ws:
         subprocess.run(["i3-msg", "workspace", workspaces[new_ws]['name']])
         sys.exit(0)
@@ -94,7 +99,7 @@ def workspace(args):
     if args[1] == 'next' or args[1] == 'prev':
         for _ in workspaces:
             new_ws = new_workspace(new_ws, workspaces, args)
-            # check the new workspace is in the allowed list
+            # switch to the new workspace if it's in the allowed list
             if workspaces[new_ws]['name'] in allowed_ws:
                 subprocess.run(["i3-msg", "workspace",
                                 workspaces[new_ws]['name']])
